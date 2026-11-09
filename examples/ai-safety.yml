@@ -1,0 +1,24 @@
+# Copy to .github/workflows/ai-safety.yml in your own repository.
+# Add two repository secrets: AISL_TOKEN (free, emailed from the dashboard) and MODEL_API_KEY.
+name: AI safety test
+on: [pull_request]
+jobs:
+  ai-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run the AI safety test
+        env:
+          AISL_TOKEN: ${{ secrets.AISL_TOKEN }}
+          MODEL_API_KEY: ${{ secrets.MODEL_API_KEY }}
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/projectaisafety/tools/main/aisl_run.py -o aisl_run.py
+          python3 aisl_run.py --provider openai --model gpt-6-luna --suite default_15 --strength standard
+          # Fail only on NEW failures: commit an accepted run as ai-safety-baseline.json and add
+          #   --baseline ai-safety-baseline.json
+      - name: Keep the signed evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-safety-evidence
+          path: ai-safety-run-*.json

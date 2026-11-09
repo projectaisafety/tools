@@ -1,0 +1,19 @@
+name: check
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Both tools start
+        run: |
+          python verify_evidence.py --help
+          python aisl_run.py --help
+      - name: The sample reports verify against the published key
+        run: |
+          python verify_evidence.py examples/sample_passed.json
+          python verify_evidence.py examples/sample_failed.json

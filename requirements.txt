@@ -1,0 +1,2 @@
+# verify_evidence.py only. aisl_run.py needs nothing beyond Python 3.9+.
+cryptography>=42
